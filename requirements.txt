@@ -1,0 +1,4 @@
+captcha
+numpy
+plotly
+streamlit
