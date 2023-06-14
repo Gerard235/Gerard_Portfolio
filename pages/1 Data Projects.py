@@ -9,7 +9,7 @@ captcha_control()
 
 def Data_Projects_page():
     st.title("Gerard's web portfolio")
-    st.text('Come back in a week or two (07/05/2023)')
+    st.text('Come back soon')
 
 # Call and thereby display this page
 if 'controllo' not in st.session_state or st.session_state['controllo'] == False:

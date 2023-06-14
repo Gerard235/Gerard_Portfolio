@@ -57,10 +57,10 @@ def main_page():
         plot1.add_scatter(x=x, y=Q1x, mode='lines', name='Q1(x)', line=dict(color='yellow'))
         plot1.add_scatter(x=x, y=Qx, mode='lines', name='Q(x)', line=dict(color='red'))  
         plot1.add_scatter(x=x, y=qx, mode='lines', name='q(x)', line=dict(color='blue'))
-        st.plotly_chart(plot1)
+        plot1.show()
         '''
         st.code(code, language='python')
-        st.markdown("To learn more about why this occurs see introductions to computational mathematics/scientific computing/numerical methods. Unaddressed errors like this can lead to real world [disasters](http://ta.twi.tudelft.nl/users/vuik/wi211/disasters.html).")
+        st.markdown("To learn more about why this occurs see introductions to computational mathematics/scientific computing/numerical methods. Unaddressed, errors like this, have led to real world [disasters](http://ta.twi.tudelft.nl/users/vuik/wi211/disasters.html).")
 
         
 
