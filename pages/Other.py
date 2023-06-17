@@ -260,8 +260,71 @@ def other_page():
         remainder = rem(fibs,2);
         fibs(remainder==1) = []
         answer = sum(fibs)
-        ''', language="matlab")           
+        ''', language="matlab")
 
+    with st.expander("Creating a simple executable file to change a desktop's background"):
+        st.markdown(r'''
+                    For fun, I shared some executable files with my friends which change a desktop's background to an image I'd selected. 
+                    
+                    First, the image needs to be converted to byte data. Then a simple python script uses this to change the background. Finally, make the python script into an executable file.
+
+                    This code completes the first task.
+                    ''')
+        st.code(r'''
+                import base64
+
+                def pic2str(fileName, varName, outFileName):
+                    # This function takes an image, converts that to byte data, and saves the result in a .py file with a variable name of your choice
+                    # Credit for the original code goes to Clay at https://clay-atlas.com/us/blog/2020/11/04/python-en-package-pyinstaller-picture/
+                    pic = open(fileName, 'rb')
+                    content = '{} = {}\n'.format(varName, base64.b64encode(pic.read()))
+                    pic.close()
+
+                    with open(outFileName, 'a') as f:
+                        f.write(content)
+                        
+                if __name__ == '__main__':
+                pic2str('picture_filename.jpg', 'image_var_name', 'pic_as_str.py')
+                ''', language="python")
+        st.markdown(r'''
+                    Having created 'pic_as_str.py', create a new Python script "change_wallpaper.py" with the code below.
+                    ''')
+        st.code(r'''
+                import ctypes
+                import os
+                import base64
+                from io import BytesIO
+                from PIL import Image
+
+                SPI_SETDESKWALLPAPER = 20
+
+                # Import the image that had been saved as a string, save that as a jpg and then set it as the wallpaper
+                from pic_as_str import image_var_name
+
+                byte_data = base64.b64decode(image_var_name)
+                image_data = BytesIO(byte_data)
+                im = Image.open(image_data)
+                image = im.save("saved.jpg")
+
+                ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, os.path.abspath("saved.jpg"), 3)
+                ''', language="python")
+        st.markdown(r'''
+                    On your local machine you can run the above script to test that it works. To turn this into an executable file, first open a command prompt and install PyInstaller with 
+                    ''')
+        st.code(r'''
+                pip install pyinstaller
+                ''', language="cmd")
+        st.markdown(r'''
+                    Then in the same directory as "change_wallpaper.py", run the command
+                    ''')
+        st.code(r'''
+                pyinstaller --onefile change_wallpaper.py
+                ''', language="cmd")
+        st.markdown(r'''
+                    Once complete there will be a new folder 'dist', with 'change_wallpaper.exe'. 
+                    
+                    Now you need to figure out how to get your friends to run this file on their PC.
+                    ''')        
 
 # Call and thereby display this page
 if 'controllo' not in st.session_state or st.session_state['controllo'] == False:
