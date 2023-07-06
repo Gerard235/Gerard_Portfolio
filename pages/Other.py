@@ -240,7 +240,7 @@ def other_page():
                     $$
                     ''')
         st.markdown(r'''
-                    Though not recommended, for a bit of fun, this formula be used to solve Project Euler's problem number 2 (summing even Fibonacci terms less than 4 million). The following MATLAB code is a simple example:
+                    Though not a recommended approach to this problem, for a bit of fun, this formula can be used to solve Project Euler's problem number 2 (summing even Fibonacci terms less than 4 million). The following MATLAB code is a simple example:
                     ''')
         st.code('''
         % Find the sum of the even-valued Fibonacci terms less than four million.
