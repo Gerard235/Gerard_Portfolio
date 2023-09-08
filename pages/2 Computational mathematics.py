@@ -2,10 +2,8 @@ import streamlit as st
 import sys
 sys.path.append("./gerard_portfolio")
 from PIL import Image
-from captcha1 import captcha_control
 
-captcha_control()
-
+st.set_page_config(layout="wide", initial_sidebar_state="auto", page_title="Computational mathematics")
 
 def Comp_Math_page():
     st.title("Gerard's web portfolio")
@@ -169,8 +167,4 @@ def Comp_Math_page():
         To measure how good the fit is in this last example, the $2$-norm between the polynomial and the perturbed data is 1.08, between the polynomial and the 'true' data it is similar at 1.12, both are smaller than the amount of perturbation 1.29 (as measured by the 2-norm again).
         ''')
 
-# Call and thereby display this page
-if 'controllo' not in st.session_state or st.session_state['controllo'] == False:
-    captcha_control()
-else:
-    Comp_Math_page()
+Comp_Math_page()
