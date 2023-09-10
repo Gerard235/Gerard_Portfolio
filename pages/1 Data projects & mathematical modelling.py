@@ -41,9 +41,6 @@ def Data_Projects_page():
                     
                     For example, I created Markov models of the Australian Public Service's (ongoing) workforce, based on the data at this [link](https://www.apsc.gov.au/initiatives-and-programs/workforce-information/workforce-data/aps-data-release-and-statistical-bulletins). The chart below shows the results of a simple Markov model, constructed based on data as at December 2019 and December 2020. The model can be interpreted as indicating the evolution of the APS (ongoing) workforce if promotions, engagements and separations continue in similar fashion to 2019/2020. Double-click on a classification to see just its curve. You can multiply the number of yearly entrants with the sliders below.
                     ''')
-        # fig0 = pio.read_json("media/fig1_json")
-        # st.plotly_chart(fig0, use_container_width=True)
-
         
         def iterable_Markov_calc(state_t0, engmt, prob_matr, iterations, start_year=2019):
             # This function iterates the Markov model for as many times as specified by iterations. It expects as input the initial or the adjusted probability matrix.
@@ -94,8 +91,46 @@ def Data_Projects_page():
 
     with st.expander("Modelling EV adoption with Fisher-Pry models"):
         st.markdown(r'''
-                    Under construction.
+                    Electric vehicles (EVs) are an emerging technology with the potential to replace combustion engine vehicles. Inspired by biological models of competition, if we assume that the rate of change in the fraction of EVs (denoted $f$) is proportional to the fraction of EVs and the remaining fraction of the market yet to be substituted, we have the ordinary differential equation
+                    $$
+                    \begin{align}
+                    \frac{df}{dt} &= b f(1 - f) 
+                    \end{align}
+                    $$
+                    Noting that this ODE is separable, with the help of an integral table it can be solved as follows
+                    $$
+                    \begin{align*}
+                    \int \frac{1}{f(1-f)} \,df &= \int b \,dt \\
+                    \ln\frac{f}{1-f} &= a + bt \tag{2}\\
+                    \frac{f}{1-f} &= e^{(a + bt)} \\ 
+                    f &= e^{(a + bt)} - fe^{(a + bt)} \\
+                    f + fe^{(a + bt)} &= e^{(a + bt)} \\
+                    f(1 + e^{(a + bt)}) &= e^{(a + bt)} \\
+                    f &= \frac{e^{(a + bt)}}{1+e^{(a + bt)}} \\
+                    &= \frac{1}{1 + e^{-(a + bt)}} \tag{3}
+                    \end{align*}
+                    $$
+                    
+                    Applying this model to technological substitution was introduced by Fisher and Pry in their relatively accessible _A Simple Substitution Model of Technological Change_.
+                    
+                    To apply this model we can use the equation at $(2)$ to determine the parameters $(a, b)$. In particular, collect data measuring $f$ and transform that according to the left hand side of the equation, then as indicated by the right hand side we need to fit a straight line to this. For example, the proportion of EVs (Electric and plug-in hybrid) in the Australian Capital Territory can be calculated from the data at this [link](https://www.data.act.gov.au/Transport/Total-vehicles-registered-in-the-ACT/x4hp-vihn). The semilog plot of $f/(1-f)$ is
+                    
+
                     ''')
+        fig0 = pio.read_json("media/EV_fig0_json")
+        fig0.update_layout(yaxis=dict(title=dict(text='f/(1-f)'), title_font=dict(size=20)), xaxis=dict(title=dict(text='Date'),title_font=dict(size=16)))
+        st.plotly_chart(fig0, use_container_width=True)
+        st.markdown(r'''
+                    In particular, focus on the blue points from mid-2019 where it appears that EV adoption is taking effect. Fitting a straight line to this region is plotted below and returned the parameters $(a,b)=(-6.291, 0.054)$.
+                    ''')
+        fig1 = pio.read_json("media/EV_fig1_json")
+        fig1.update_layout(xaxis=dict(range=[0, 44]), yaxis=dict(range=[-6.3, -4]))
+        st.plotly_chart(fig1, use_container_width=True)
+        st.markdown(r'''
+                    These parameters give the model plotted as a line below. The data has been plotted as circles too and it is evident that the model is a good fit. The model suggests that EVs might make up $50\%$ of cars in the second half of 2029. It is likely that this estimate is sooner than should be expected since population growth has not been factored into this model and cars have a long lifespan.
+                    ''')
+        fig2 = pio.read_json("media/EV_fig2_json")
+        st.plotly_chart(fig2, use_container_width=True)
 
         
 
