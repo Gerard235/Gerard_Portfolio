@@ -5,7 +5,7 @@ import plotly.io as pio
 import numpy as np
 import pandas as pd
 from PIL import Image
-
+from scipy.integrate import odeint
 
 
 sys.path.append("./gerard_portfolio")
