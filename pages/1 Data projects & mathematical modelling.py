@@ -9,7 +9,7 @@ from PIL import Image
 
 
 sys.path.append("./gerard_portfolio")
-from models.SEIRV import *
+from pages.models.SEIRV import *
 st.set_page_config(layout="wide", initial_sidebar_state="auto", page_title="Data projects")
 
 def Data_Projects_page():
