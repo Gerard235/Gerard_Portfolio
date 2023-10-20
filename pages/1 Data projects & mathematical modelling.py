@@ -4,6 +4,9 @@ import plotly.express as px
 import plotly.io as pio
 import numpy as np
 import pandas as pd
+from PIL import Image
+
+from pages.models.SEIRV import *
 
 sys.path.append("./gerard_portfolio")
 
@@ -132,6 +135,106 @@ def Data_Projects_page():
         fig2 = pio.read_json("media/EV_fig2_json")
         st.plotly_chart(fig2, use_container_width=True)
 
-        
+    with st.expander("Modelling infectious diseases with SEIRV models"):
+            st.markdown(r'''
+                        Infectious disease modelling informs decision making during disease outbreaks. It is likely this topic is now a canonical example in courses on mathematical modeling. 
+                        The following set of ordinary differential equations is known as the SEIRV model: susceptible, exposed, infected, recovered, vaccinated. 
+                        $$
+                        \begin{align*}
+                        \frac{dS}{dt} &= \mu N - \frac{\beta S I}{N} - \mu S - \kappa S &\quad \frac{dE}{dt}&=\frac{\beta S I }{N} - \sigma E - \mu E &\quad \frac{dI}{dt} &= \sigma E - \mu I - \gamma I \\
+                        \frac{dR}{dt}&=\gamma I - \mu R &\quad \frac{dV}{dt} &= \kappa S - \mu V 
+                        \end{align*}
+                        $$
+                        An easier introduction to this model is to consider the following diagram, showing the movement of people between groups:
+                        ''')
+            st.image(Image.open("media/seirv_flow.png"), caption='SEIRV flow diagram')
+            st.markdown(r'''
+                        In this model people start out as susceptible to the disease, there is a rate at which people are exposed, and if so a period before becoming infectious and then a recovery rate for moving into the recovered group. 
+                        Some of the simplifications in this formulation of the model are worth noting: the rate of births is equal to deaths, and the rate of dying is the same for each group (\mu), only people who are susceptible are vaccinated (at a rate of \kappa), and people who have recovered cannot be re-infected. 
+                        Such a model will be appropriate for modelling some diseases but would need refinement for others.
+
+                        With the following parameters the SEIRV model formulated here results in the following forecast
+                        ''')
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                i0 = st.number_input('Set the initial number of infections', value=100, min_value=0, max_value=25_000_000, step=10_000)
+                beta = st.number_input('Set the transmission parameter', value=0.6, min_value=0.0, max_value=1.0,  step=0.1)
+            with col2:
+                sigma = 1 / st.number_input('Set the latent period (number of days)', value=3, min_value=0, max_value=14, step=1)
+                gamma = 1 / st.number_input('Set the recovery period (number of days)', value=7, min_value=0, max_value=21, step=1)
+            with col3:
+                kappa = st.number_input('Set the percentage of the susceptible population vaccinated per day', value=0.3, min_value=0.0, max_value=100.0, step=0.1) / 100
+            mu = 1 / (75*365)           # Birth / death rate (per day)
+            T = 365                     # Number of days over which to model
+            N = 25_000_000              # Total population size
+            y_df = solve_SEIRV(i0, mu, beta, sigma, gamma, kappa, T, N)
+            seirv_fig = make_plot(y_df)
+            st.plotly_chart(seirv_fig, use_container_width=True)
+            st.markdown(r'''
+            The Python code to produce this plot is 
+                        ''')
+            st.code('''
+            import numpy as np
+            from scipy.integrate import odeint
+            import plotly.express as px
+            import pandas as pd
+
+
+            def define_SEIRV(y, t, mu, kappa, beta, gamma, sigma, N):
+
+                # Function defining the SEIRV model.
+
+                S, E, I, R, V = y
+                dS = mu*N - (beta*S*I/N) - mu*S - kappa*S
+                dE = (beta*S*I/N) - sigma*E - mu*E
+                dI = sigma*E - mu*I - gamma*I
+                dR = gamma*I - mu*R
+                dV = kappa*S - mu*V
+                
+                return [dS, dE, dI, dR, dV]
+
+
+            def solve_SEIRV(i0, mu, beta, sigma, gamma, kappa, T, N):
+                
+                # Function to solve the SEIRV model using odeint from scipy.integrate.
+
+                # Initial conditions
+                S0 = N - i0     # Everyone except for initial infected population is sucseptible
+                E0 = 0          # Number of initial exposed people
+                I0 = i0         # Number of initial infected people
+                R0 = 0          # Number of initial recovered people
+                V0 = 0          # Number of initial vaccinated people
+                y0 = [S0, E0, I0, R0, V0]
+
+                # Array of integers from day 0 up to and including T 
+                timespan = np.arange(0, T+1, 1)
+                
+                y = odeint(define_SEIRV, y0, timespan, args=(mu, kappa, beta, gamma, sigma, N))
+
+                y_df = pd.DataFrame({
+                    'Time': timespan,
+                    'Susceptible': y[:, 0],
+                    'Exposed': y[:, 1],
+                    'Infective': y[:, 2],
+                    'Recovered': y[:, 3],
+                    'Vaccinated': y[:, 4]
+                })
+
+                return y_df
+
+
+            def make_plot(y_df):
+                
+                fig = px.line(y_df, x='Time', y=['Susceptible', 'Exposed', 'Infective', 'Recovered', 'Vaccinated'],
+                            labels={'value': 'Number of people', 'Time': 'Time (days)'})
+                fig.update_traces(mode="lines", hovertemplate=None)
+                fig.update_layout(hovermode="x unified")
+                fig.show()
+                return fig
+            
+        # Define the input parameters and then run
+            y_df = solve_SEIRV(i0, mu, beta, sigma, gamma, kappa, T, N)
+            seirv_fig = make_plot(y_df)
+            ''', language="python")
 
 Data_Projects_page()

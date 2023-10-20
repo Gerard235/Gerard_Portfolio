@@ -1,7 +1,8 @@
 import streamlit as st
 import sys
-sys.path.append("./gerard_portfolio")
 from PIL import Image
+sys.path.append("./gerard_portfolio")
+
 
 st.set_page_config(layout="wide", initial_sidebar_state="auto", page_title="Computational mathematics")
 
