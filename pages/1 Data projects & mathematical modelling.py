@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from pages.models.SEIRV import *
+from models.SEIRV import *
 
 sys.path.append("./gerard_portfolio")
 
